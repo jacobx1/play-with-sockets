@@ -1,0 +1,11 @@
+{
+  "name": "play-with-sockets",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Jacob Schwind <jacobx1@gmail.com>",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
+  "private": true
+}

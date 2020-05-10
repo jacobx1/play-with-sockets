@@ -1,0 +1,8 @@
+node_modules/
+build/
+.cache/
+.DS_Store
+dist/
+localhost.cer
+localhost.pem
+private.pem
