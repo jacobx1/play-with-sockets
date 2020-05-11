@@ -1,4 +1,5 @@
 import { ActionTypes, ActionPayload, Action } from "./actionTypes";
+import { Map } from "immutable";
 
 type ClearAllAction = Action<ActionTypes.CLEAR_ALL>;
 export const clearAll = (): ClearAllAction => ({
@@ -26,4 +27,17 @@ export const coordUpdate = (coords: CoordsType): CoordUpdateAction => ({
   payload: coords,
 });
 
-export type CoordAction = ClearAllAction | ClickCellAction | CoordUpdateAction;
+type CoordsSentAction = ActionPayload<
+  ActionTypes.COORDS_SENT,
+  Map<string, number>
+>;
+export const coordsSent = (coords: Map<string, number>): CoordsSentAction => ({
+  type: ActionTypes.COORDS_SENT,
+  payload: coords,
+});
+
+export type CoordAction =
+  | ClearAllAction
+  | ClickCellAction
+  | CoordUpdateAction
+  | CoordsSentAction;

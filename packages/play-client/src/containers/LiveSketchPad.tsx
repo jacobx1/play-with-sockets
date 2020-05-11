@@ -4,6 +4,7 @@ import { clickCell, clearAll } from "../actions/coordActions";
 import { useServerCommunication } from "../hooks/serviceHooks";
 import { useDrawBehavior } from "../hooks/drawInteractionHooks";
 import { Map } from "immutable";
+import { cellValuesSelector } from "../selectors/coordSelectors";
 
 const use2dContext = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   const ctx = useRef<CanvasRenderingContext2D>();
@@ -43,7 +44,7 @@ const useDrawContextUpdate = (
 
 const LiveSketchPad = () => {
   const canvasRef = useRef<HTMLCanvasElement>();
-  const cellValues = useSelector((state) => state.cellValues);
+  const cellValues = useSelector(cellValuesSelector);
   const localUpdates = useSelector((state) => state.localUpdates);
 
   const onDrawPixel = useAction(clickCell);

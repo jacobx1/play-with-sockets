@@ -2,6 +2,7 @@ export enum ActionTypes {
   COORD_UPDATE,
   CLEAR_ALL,
   CLICK_CELL,
+  COORDS_SENT,
 }
 
 export interface Action<T extends ActionTypes> {

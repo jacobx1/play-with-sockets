@@ -4,15 +4,15 @@ import ws from "ws";
 
 const router = express.Router();
 
-let coords = Map();
-let connectedClients = new Set<ws>();
+let coords = Map<string, number>();
+let connectedClients = Map<ws, typeof coords>();
 
 const sendActionCreator = (ws: ws) => (action: any) => {
   ws.send(JSON.stringify(action));
 };
 
 router.ws("/", (ws, req) => {
-  connectedClients.add(ws);
+  connectedClients = connectedClients.set(ws, Map());
   ws.on("message", (msg) => {
     const msgObj = JSON.parse(msg as string);
     const sendAction = sendActionCreator(ws);
@@ -20,12 +20,27 @@ router.ws("/", (ws, req) => {
     if (msgObj.type === "COORD_UPDATE") {
       coords = coords.merge(msgObj.payload);
 
-      connectedClients.forEach((client) => {
+      let updated = connectedClients;
+      connectedClients.entrySeq().forEach((valuePack) => {
+        const [client, lastSentValues] = valuePack;
+        const patchedCoords = {};
+        coords
+          .entrySeq()
+          .filter(([key, value]) => {
+            const lastVal = lastSentValues.get(key);
+            return lastVal !== value;
+          })
+          .forEach((valuePack) => {
+            patchedCoords[valuePack[0]] = valuePack[1];
+          });
         sendActionCreator(client)({
           type: "COORD_UPDATE",
-          payload: coords.toJS(),
+          payload: patchedCoords,
         });
+
+        updated = updated.set(client, coords);
       });
+      connectedClients = updated;
     } else if (msgObj.type === "COORDS_GET") {
       sendAction({
         type: "COORD_UPDATE",
@@ -34,7 +49,7 @@ router.ws("/", (ws, req) => {
     }
   });
   ws.on("close", () => {
-    connectedClients.delete(ws);
+    connectedClients = connectedClients.remove(ws);
   });
 });
 

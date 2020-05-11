@@ -1,7 +1,8 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useThrottle } from "react-use";
 import { useSelector, useAction } from "./appContext";
-import { coordUpdate } from "../actions/coordActions";
+import { coordUpdate, coordsSent } from "../actions/coordActions";
+import { localCellValues } from "../selectors/coordSelectors";
 
 const sendAction = (ws: WebSocket, action: any) => {
   ws.send(JSON.stringify(action));
@@ -11,9 +12,10 @@ export const useServerCommunication = () => {
   const [socket, setSocket] = useState<WebSocket>();
 
   const localUpdates = useSelector((state) => state.localUpdates);
-  const cellValues = useSelector((state) => state.cellValues);
+  const cellValues = useSelector(localCellValues);
 
   const coordUpdateAction = useAction(coordUpdate);
+  const coordsSentAction = useAction(coordsSent);
   const throttledUpdate = useThrottle(localUpdates, 200);
   useEffect(() => {
     const ws = new WebSocket("wss://localhost:8080/socket");
@@ -41,6 +43,7 @@ export const useServerCommunication = () => {
         payload: cellValues.toJS(),
       };
       socket.send(JSON.stringify(message));
+      coordsSentAction(cellValues);
     }
   }, [socket, throttledUpdate]);
 };
